@@ -143,6 +143,16 @@ template.TextXAlignment = Enum.TextXAlignment.Right
 
 UICorner_2.Parent = template
 
+local TextBoxFocus = false
+
+UIS.TextBoxFocused:Connect(function()
+	TextBoxFocus = true
+	print("A")
+end)
+UIS.TextBoxFocusReleased:Connect(function()
+	TextBoxFocus = false
+end)
+
 local Mode = 1
 
 local Keybinds = {
@@ -176,7 +186,11 @@ function Table(t)
 		SimulateTable=SimulateTable..a
 	end
 	local function createIndex(k)
-		add(SimulateTable,string.format("['%s']",k))
+		if typeof(k) == "number" then
+			add(SimulateTable,string.format("['%d']",k))
+		else
+			add(SimulateTable,string.format("['%s']",k))
+		end
 		add(SimulateTable,"=")
 	end
 	for k, v in pairs(t) do
@@ -269,6 +283,7 @@ function Freeze(bool)
 	Humanoid.AutoRotate = not bool
 end
 function InputBegan(input, bool)
+	if TextBoxFocus then return end
 	for i:string,v in pairs(Keybinds) do
 		if typeof(v) == "table" then
 			if input.KeyCode == v[1] or input.UserInputType == v[1] then
