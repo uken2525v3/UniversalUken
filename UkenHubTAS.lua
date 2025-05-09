@@ -1,3 +1,9 @@
+local SaveFolderName = "saves TAS ukhub"
+if not game:GetService("RunService"):IsStudio() then
+if not isfolder(SaveFolderName) then
+	makefolder(SaveFolderName)
+end
+end
 local Players = game:GetService("Players")
 local UIS = game:GetService("UserInputService")
 repeat wait() until Players.LocalPlayer and Players.LocalPlayer.Character
@@ -9,6 +15,7 @@ Character:WaitForChild("Humanoid")
 local Humanoid = Character:FindFirstChildOfClass("Humanoid")
 local HumanoidRootPart = Humanoid.RootPart
 local Torso = Character:FindFirstChild("Torso")
+local FileType = ".TAS"
 function respawn()
 	Character = LocalPlayer.Character
 	Character:WaitForChild("HumanoidRootPart")
@@ -161,7 +168,8 @@ local Keybinds = {
 	["StepForward"] = {Enum.KeyCode.T, false, "Hold"};
 	["Stepbackward"] = {Enum.KeyCode.R, false, "Hold"};
 	["Pause"] = {Enum.UserInputType.MouseButton1, true, "Toggle"};
-	["Copy"] = {Enum.KeyCode.C, false, "Hold"};
+	["Copy"] = {Enum.KeyCode.C, false, "OneTap"};
+	["Load"] = {Enum.KeyCode.V, false, "OneTap"};
 	["Delete"] = {Enum.KeyCode.Backspace, false, "OneTap"};
 
 	["Mode1"] = Enum.KeyCode.One;
@@ -179,6 +187,7 @@ local Data = {}
 local CurrentKeyframe = 1
 local FrameSpeed = 60
 local StopRender = false
+local CopyUI = false
 
 function Table(t)
 	local SimulateTable = "{"
@@ -187,7 +196,8 @@ function Table(t)
 	end
 	local function createIndex(k)
 		if typeof(k) == "number" then
-			add(SimulateTable,string.format("['%d']",k))
+			add(SimulateTable,string.format("[%d]",k))
+			print("number")
 		else
 			add(SimulateTable,string.format("['%s']",k))
 		end
@@ -213,8 +223,14 @@ function Table(t)
 			add(SimulateTable,";\n")
 		end
 	end
-	add(SimulateTable,"}\n")
+	add(SimulateTable,"}")
 	return SimulateTable
+end
+function StringToTable(str)
+	return loadstring("return "..str)()
+end
+function getListOfFiles()
+	return listfiles(SaveFolderName)
 end
 function saveTable(input)
 	setclipboard(Table(input))
@@ -235,7 +251,7 @@ function GetBooleanOf(Name:string)
 	end
 end
 function AddKeyframe()
-	if StopRender then return end
+	if StopRender or CopyUI then return end
 	local Information = {
 		["CFrame"] = HumanoidRootPart.CFrame;
 		["State"] = Humanoid:GetState();
@@ -281,6 +297,197 @@ local Freezea = Instance.new("BodyVelocity")
 function Freeze(bool)
 	HumanoidRootPart.Anchored = bool
 	Humanoid.AutoRotate = not bool
+end
+function saveTofile()
+	if CopyUI then return end
+	CopyUI = true
+	local savebackground = Instance.new("Frame")
+	local TextBox = Instance.new("TextBox")
+	local TextButton = Instance.new("TextButton")
+	local TextLabel = Instance.new("TextLabel")
+
+	savebackground.Name = "savebackground"
+	savebackground.Parent = UKENTAS
+	savebackground.AnchorPoint = Vector2.new(0.5, 0.5)
+	savebackground.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+	savebackground.BorderColor3 = Color3.fromRGB(0, 0, 0)
+	savebackground.BorderSizePixel = 0
+	savebackground.Position = UDim2.new(0.5, 0, 0.82079345, 0)
+	savebackground.Size = UDim2.new(0.268759578, 0, 0.232558146, 0)
+
+	TextBox.Parent = savebackground
+	TextBox.BackgroundColor3 = Color3.fromRGB(74, 74, 74)
+	TextBox.BorderColor3 = Color3.fromRGB(0, 0, 0)
+	TextBox.BorderSizePixel = 0
+	TextBox.Position = UDim2.new(0.0740740746, 0, 0.352941185, 0)
+	TextBox.Size = UDim2.new(0.849002838, 0, 0.294117659, 0)
+	TextBox.Font = Enum.Font.Highway
+	TextBox.PlaceholderText = "filename"
+	TextBox.Text = ""
+	TextBox.TextColor3 = Color3.fromRGB(255, 255, 255)
+	TextBox.TextScaled = true
+	TextBox.TextSize = 14.000
+	TextBox.TextWrapped = true
+
+	TextButton.Parent = savebackground
+	TextButton.BackgroundColor3 = Color3.fromRGB(74, 74, 74)
+	TextButton.BorderColor3 = Color3.fromRGB(0, 0, 0)
+	TextButton.BorderSizePixel = 0
+	TextButton.Position = UDim2.new(0.213675216, 0, 0.717647076, 0)
+	TextButton.Size = UDim2.new(0.569800556, 0, 0.19411765, 0)
+	TextButton.Font = Enum.Font.Highway
+	TextButton.Text = "Save"
+	TextButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+	TextButton.TextScaled = true
+	TextButton.TextSize = 14.000
+	TextButton.TextWrapped = true
+
+	TextLabel.Parent = savebackground
+	TextLabel.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+	TextLabel.BackgroundTransparency = 1.000
+	TextLabel.BorderColor3 = Color3.fromRGB(0, 0, 0)
+	TextLabel.BorderSizePixel = 0
+	TextLabel.Position = UDim2.new(0, 0, 0.0647058859, 0)
+	TextLabel.Size = UDim2.new(1, 0, 0.229411766, 0)
+	TextLabel.Font = Enum.Font.Highway
+	TextLabel.Text = "Save to file"
+	TextLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+	TextLabel.TextScaled = true
+	TextLabel.TextSize = 14.000
+	TextLabel.TextWrapped = true
+	
+	local X = Instance.new("TextButton")
+
+	X.Name = "X"
+	X.Parent = savebackground
+	X.BackgroundColor3 = Color3.fromRGB(74, 74, 74)
+	X.BorderColor3 = Color3.fromRGB(0, 0, 0)
+	X.BorderSizePixel = 0
+	X.Position = UDim2.new(0.880341887, 0, 0.0647058859, 0)
+	X.Size = UDim2.new(0.0968660936, 0, 0.182352945, 0)
+	X.Font = Enum.Font.Highway
+	X.Text = "X"
+	X.TextColor3 = Color3.fromRGB(255, 255, 255)
+	X.TextScaled = true
+	X.TextSize = 14.000
+	X.TextWrapped = true
+	
+	X.MouseButton1Click:Connect(function()
+		savebackground:Destroy()
+		CopyUI = false
+	end)
+	TextButton.MouseButton1Click:Connect(function()
+		local fileContent = Table(Data)
+		local SaveTxtName = nil
+		if TextBox.ContentText~="" then
+			SaveTxtName = TextBox.ContentText
+		else
+			SaveTxtName = "SaveFile".."_"..game.GameId
+		end
+		local fileName = SaveFolderName.."\\"..SaveTxtName..FileType
+		if isfile(fileName) then
+			delfile(fileName)
+		end
+		local Txt = SaveFolderName.."/"..SaveTxtName..FileType
+		writefile(Txt, fileContent)
+		savebackground:Destroy()
+		CopyUI = false
+	end)
+end
+function LoadFromFile()
+	if CopyUI then return end
+	CopyUI = true
+	local load = Instance.new("Frame")
+	local TextBox = Instance.new("TextBox")
+	local TextButton = Instance.new("TextButton")
+	local TextLabel = Instance.new("TextLabel")
+	local X = Instance.new("TextButton")
+
+	load.Name = "load"
+	load.Parent = UKENTAS
+	load.AnchorPoint = Vector2.new(0.5, 0.5)
+	load.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+	load.BorderColor3 = Color3.fromRGB(0, 0, 0)
+	load.BorderSizePixel = 0
+	load.Position = UDim2.new(0.5, 0, 0.82079345, 0)
+	load.Size = UDim2.new(0.268759578, 0, 0.232558146, 0)
+
+	TextBox.Parent = load
+	TextBox.BackgroundColor3 = Color3.fromRGB(74, 74, 74)
+	TextBox.BorderColor3 = Color3.fromRGB(0, 0, 0)
+	TextBox.BorderSizePixel = 0
+	TextBox.Position = UDim2.new(0.0740740746, 0, 0.352941185, 0)
+	TextBox.Size = UDim2.new(0.849002838, 0, 0.294117659, 0)
+	TextBox.Font = Enum.Font.Highway
+	TextBox.PlaceholderText = "file name"
+	TextBox.Text = ""
+	TextBox.TextColor3 = Color3.fromRGB(255, 255, 255)
+	TextBox.TextScaled = true
+	TextBox.TextSize = 14.000
+	TextBox.TextWrapped = true
+
+	TextButton.Parent = load
+	TextButton.BackgroundColor3 = Color3.fromRGB(74, 74, 74)
+	TextButton.BorderColor3 = Color3.fromRGB(0, 0, 0)
+	TextButton.BorderSizePixel = 0
+	TextButton.Position = UDim2.new(0.213675216, 0, 0.717647076, 0)
+	TextButton.Size = UDim2.new(0.569800556, 0, 0.19411765, 0)
+	TextButton.Font = Enum.Font.Highway
+	TextButton.Text = "Load"
+	TextButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+	TextButton.TextScaled = true
+	TextButton.TextSize = 14.000
+	TextButton.TextWrapped = true
+
+	TextLabel.Parent = load
+	TextLabel.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+	TextLabel.BackgroundTransparency = 1.000
+	TextLabel.BorderColor3 = Color3.fromRGB(0, 0, 0)
+	TextLabel.BorderSizePixel = 0
+	TextLabel.Position = UDim2.new(0, 0, 0.0647058859, 0)
+	TextLabel.Size = UDim2.new(1, 0, 0.229411766, 0)
+	TextLabel.Font = Enum.Font.Highway
+	TextLabel.Text = "Load from file"
+	TextLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+	TextLabel.TextScaled = true
+	TextLabel.TextSize = 14.000
+	TextLabel.TextWrapped = true
+
+	X.Name = "X"
+	X.Parent = load
+	X.BackgroundColor3 = Color3.fromRGB(74, 74, 74)
+	X.BorderColor3 = Color3.fromRGB(0, 0, 0)
+	X.BorderSizePixel = 0
+	X.Position = UDim2.new(0.880341887, 0, 0.0647058859, 0)
+	X.Size = UDim2.new(0.0968660936, 0, 0.182352945, 0)
+	X.Font = Enum.Font.Highway
+	X.Text = "X"
+	X.TextColor3 = Color3.fromRGB(255, 255, 255)
+	X.TextScaled = true
+	X.TextSize = 14.000
+	X.TextWrapped = true
+	
+	X.MouseButton1Click:Connect(function()
+		load:Destroy()
+		CopyUI = false
+	end)
+	TextButton.MouseButton1Click:Connect(function()
+		local filelists = getListOfFiles()
+		local fileName = SaveFolderName.."\\"..TextBox.ContentText..FileType
+		print(fileName)
+		for i,v in pairs(filelists) do
+			print(v)
+		end
+		if isfile(fileName) then
+			local result = StringToTable(readfile(fileName))
+			print(#result)
+			Data = result
+			print(#Data)
+		else
+			print("Cant find")
+		end
+		CopyUI = false
+	end)
 end
 function InputBegan(input, bool)
 	if TextBoxFocus then return end
@@ -358,6 +565,25 @@ RunService.RenderStepped:Connect(function(deltatime)
 			SetValueOf("Pause",false)
 		end
 	end
+	local PauseValue = GetBooleanOf("Pause")
+	local Forward = GetBooleanOf("StepForward")
+	local Backward = GetBooleanOf("Stepbackward")
+	local Step1Forward = GetBooleanOf("Step1Forward")
+	local Step1Backward = GetBooleanOf("Step1Backward")
+	local Copy = GetBooleanOf("Copy")
+	local Load = GetBooleanOf("Load")
+	if Mode == 1 then
+	elseif Mode == 2 then
+		StartAt = #Data
+		if PauseValue then
+			PlayFrame(StartAt-ReverseValue)
+		end
+		--print(Data)
+	elseif Mode == 3 then
+		if Data[CurrentKeyframe] then
+			PlayFrame(CurrentKeyframe)
+		end
+	end
 	--print(GetBooleanOf("Stepbackward"))
 end)
 RunService.Heartbeat:Connect(function(de)
@@ -368,10 +594,14 @@ RunService.Heartbeat:Connect(function(de)
 		local Step1Forward = GetBooleanOf("Step1Forward")
 		local Step1Backward = GetBooleanOf("Step1Backward")
 		local Copy = GetBooleanOf("Copy")
+		local Load = GetBooleanOf("Load")
 		if GetBooleanOf("Delete") then
 			SetValueOf("Delete",false)
 			table.clear(Data)
 			CurrentKeyframe = 1
+		end
+		if CopyUI == true then
+			SetValueOf("Pause",true)
 		end
 		if Forward or Backward or Step1Forward or Step1Backward then
 			Mode = 2
@@ -398,8 +628,16 @@ RunService.Heartbeat:Connect(function(de)
 			end
 		end
 		if Copy then
+			if not CopyUI then
+				saveTofile()
+			end	
 			SetValueOf("Copy",false)
-			saveTable(Data)
+		end
+		if Load then
+			if not CopyUI then
+				LoadFromFile()
+			end	
+			SetValueOf("Load",false)
 		end
 		if Mode == 1 then
 			currentkeyframe.Text = string.format("Frame speed : %s", FrameSpeed)
