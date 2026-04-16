@@ -43,7 +43,9 @@ function customPrint.new(message: string, color: Color3 | BrickColor)
 				local printContent = data.msg
 				local printColor = data.color
 				
-				printed.Text = `<font color="#{printColor:ToHex()}">` .. string.format("%02d:%02d:%02d -- %s", printTime.hour, printTime.min, printTime.sec, printContent)
+				if printed then
+					printed.Text = `<font color="#{printColor:ToHex()}">` .. string.format("%02d:%02d:%02d -- %s", printTime.hour, printTime.min, printTime.sec, printContent)
+				end
 			end
 		end
 	end)
