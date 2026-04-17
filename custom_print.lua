@@ -180,6 +180,8 @@ return customPrint
 
 EXAMPLE:
 
+local customPrint = loadstring(game:HttpGet("https://raw.githubusercontent.com/uken2525v3/UniversalUken/refs/heads/main/custom_print.lua"))()
+
 local load = customPrint.new("-", Color3.new(0, 1, 0))
 task.wait()
 for i = 1, 100 do
