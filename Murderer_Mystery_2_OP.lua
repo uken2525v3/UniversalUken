@@ -81,4 +81,4 @@ end
 
 main()
 
-queue_on_teleport("loadstring(game:HttpGet("link"))()")
+queue_on_teleport("loadstring(game:HttpGet("https://github.com/uken2525v3/UniversalUken/raw/refs/heads/main/Murderer_Mystery_2_OP.lua"))()")
