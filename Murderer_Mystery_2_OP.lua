@@ -11,7 +11,6 @@ function main()
         local LocalPlayer = Players.LocalPlayer
         local GetMouse = LocalPlayer:GetMouse()
 
-        print("[Coin Aura]: Ready")
         local function touch(obj)
             local Character = LocalPlayer.Character
             local HumanoidRootPart = Character and Character.HumanoidRootPart
@@ -45,12 +44,17 @@ function main()
             end
         end
 
+        print("[Coin Aura]: Ready")
         while task.wait(0.25) do
             aura()
         end
     end)
 
     task.spawn(function()
+        if raknet == nil then
+             return
+        end
+            
         local uis = game:GetService("UserInputService")
         local hooked = false
         local toggleKey = Enum.KeyCode.U
@@ -63,7 +67,6 @@ function main()
             end
         end
 
-        print("[Raknet Library]: Ready")
         uis.InputBegan:Connect(function(obj, gameProcessedEvent)
             if obj.KeyCode ~= toggleKey or gameProcessedEvent then return end
 
@@ -76,6 +79,8 @@ function main()
             hooked = not hooked
             print("[Raknet Library]:", hooked)
         end)
+            
+        print("[Raknet Library]: Ready")
     end)
 end
 
