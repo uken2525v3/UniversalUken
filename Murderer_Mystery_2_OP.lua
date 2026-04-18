@@ -4,12 +4,13 @@ local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 
 function main()
+    repeat task.wait() until game:IsLoaded()
+    
     task.spawn(function()
         local Players = game:GetService("Players")
         local UserInputService = game:GetService("UserInputService")
 
         local LocalPlayer = Players.LocalPlayer
-        local GetMouse = LocalPlayer:GetMouse()
 
         local function touch(obj)
             local Character = LocalPlayer.Character
