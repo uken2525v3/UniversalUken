@@ -21,7 +21,10 @@ function main()
             end
             firetouchinterest(HumanoidRootPart, obj, 1)
             task.wait()
-            firetouchinterest(HumanoidRootPart, obj, 0)
+
+            if Character and HumanoidRootPart then
+                firetouchinterest(HumanoidRootPart, obj, 0)
+            end
         end
 
         local function aura()
