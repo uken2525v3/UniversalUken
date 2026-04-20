@@ -157,14 +157,27 @@ task.spawn(function()
 	until DevConsoleUI
 
 	local Checking
+	local ClientLogCheck
 	DevConsoleUI.ChildAdded:Connect(function(MainView)
 		if MainView.Name == "MainView" and MainView:IsA("Frame") then
 			local ClientLog = MainView:WaitForChild("ClientLog", 1)
-
-			Update(ClientLog)
-			Checking = ClientLog.ChildAdded:Connect(function()
+			
+			local function doChecking()
 				Update(ClientLog)
+				Checking = ClientLog.ChildAdded:Connect(function()
+					Update(ClientLog)
+				end)
+			end
+			
+			ClientLogCheck = MainView.ChildAdded:Connect(function(newClientLog)
+				if newClientLog.Name == "ClientLog" then
+					ClientLog = newClientLog
+					
+					doChecking()
+				end
 			end)
+
+			doChecking()
 		end
 	end)
 
@@ -172,6 +185,9 @@ task.spawn(function()
 		if MainView.Name == "MainView" and MainView:IsA("Frame") and Checking then
 			Checking:Disconnect()
 			Checking = nil
+
+			ClientLogCheck:Disconnect()
+			ClientLogCheck = nil
 		end
 	end)
 end)
