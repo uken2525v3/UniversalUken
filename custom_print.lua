@@ -116,15 +116,17 @@ function customPrint:update()
 	local MainView = DevConsoleUI and DevConsoleUI:FindFirstChild("MainView")
 	local ClientLog = MainView and MainView:FindFirstChild("ClientLog")
 
-	repeat
-		task.wait()
-		DevConsoleMaster = CoreGui:FindFirstChild("DevConsoleMaster")
-		DevConsoleWindow = DevConsoleMaster and DevConsoleMaster:FindFirstChild("DevConsoleWindow")
-		DevConsoleUI = DevConsoleWindow and DevConsoleWindow:FindFirstChild("DevConsoleUI")
+	task.spawn(function()
+		repeat
+			task.wait()
+			DevConsoleMaster = CoreGui:FindFirstChild("DevConsoleMaster")
+			DevConsoleWindow = DevConsoleMaster and DevConsoleMaster:FindFirstChild("DevConsoleWindow")
+			DevConsoleUI = DevConsoleWindow and DevConsoleWindow:FindFirstChild("DevConsoleUI")
 
-		MainView = DevConsoleUI and DevConsoleUI:FindFirstChild("MainView")
-		ClientLog = MainView and MainView:FindFirstChild("ClientLog")
-	until ClientLog
+			MainView = DevConsoleUI and DevConsoleUI:FindFirstChild("MainView")
+			ClientLog = MainView and MainView:FindFirstChild("ClientLog")
+		until ClientLog
+	end)
 
 	Update(ClientLog)
 end
@@ -148,13 +150,11 @@ task.spawn(function()
 		until not MainView:FindFirstChild("ClientLog")
 	end
 
-	task.spawn(function()
-		repeat task.wait()
-			DevConsoleMaster = CoreGui:FindFirstChild("DevConsoleMaster")
-			DevConsoleWindow = DevConsoleMaster and DevConsoleMaster:FindFirstChild("DevConsoleWindow")
-			DevConsoleUI = DevConsoleWindow and DevConsoleWindow:FindFirstChild("DevConsoleUI")
-		until DevConsoleUI
-	end)
+	repeat task.wait()
+		DevConsoleMaster = CoreGui:FindFirstChild("DevConsoleMaster")
+		DevConsoleWindow = DevConsoleMaster and DevConsoleMaster:FindFirstChild("DevConsoleWindow")
+		DevConsoleUI = DevConsoleWindow and DevConsoleWindow:FindFirstChild("DevConsoleUI")
+	until DevConsoleUI
 
 	local Checking
 	DevConsoleUI.ChildAdded:Connect(function(MainView)
