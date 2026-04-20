@@ -148,11 +148,13 @@ task.spawn(function()
 		until not MainView:FindFirstChild("ClientLog")
 	end
 
-	repeat task.wait()
-		DevConsoleMaster = CoreGui:FindFirstChild("DevConsoleMaster")
-		DevConsoleWindow = DevConsoleMaster and DevConsoleMaster:FindFirstChild("DevConsoleWindow")
-		DevConsoleUI = DevConsoleWindow and DevConsoleWindow:FindFirstChild("DevConsoleUI")
-	until DevConsoleUI
+	task.spawn(function()
+		repeat task.wait()
+			DevConsoleMaster = CoreGui:FindFirstChild("DevConsoleMaster")
+			DevConsoleWindow = DevConsoleMaster and DevConsoleMaster:FindFirstChild("DevConsoleWindow")
+			DevConsoleUI = DevConsoleWindow and DevConsoleWindow:FindFirstChild("DevConsoleUI")
+		until DevConsoleUI
+	end)
 
 	local Checking
 	DevConsoleUI.ChildAdded:Connect(function(MainView)
