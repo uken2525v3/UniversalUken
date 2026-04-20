@@ -1,212 +1,129 @@
-local RunService = game:GetService("RunService")
+local Custom_Print = {}
+Custom_Print.__index = Custom_Print
+Custom_Print._instances = {}
+
 local CoreGui = game:GetService("CoreGui")
 
-local printedData = {}
-local customPrint = {}
-customPrint.__index = customPrint
-
-local function GenUID(digit: number)
-	local r = ""
-	for i = 1, digit do
-		r ..= math.random(0, 9)
-	end
-	return r
+local getClientLog = function()
+	local _, clientLog = pcall(function()
+		return CoreGui:FindFirstChild("DevConsoleMaster"):FindFirstChild("DevConsoleWindow"):FindFirstChild("DevConsoleUI"):FindFirstChild("MainView"):FindFirstChild("ClientLog")
+	end)
+	
+	return typeof(clientLog) == "Instance" and clientLog
 end
 
-local function Update(ClientLog)
-	for _, data in ipairs(printedData) do
-		local function getPrintedMessage()
-			local Logs = ClientLog:GetChildren()
-			for _, Log in ipairs(Logs) do
-				if Log:IsA("Frame") and Log:FindFirstChild("msg") then
-					local msg = Log:FindFirstChild("msg")
+local updateAllData = function()
+	for uid, data in pairs(Custom_Print._instances) do
+		local clientLog = getClientLog()
+		
+		if clientLog then
+			for _, printedText in ipairs(clientLog:GetChildren()) do
+				local msg = printedText:FindFirstChild("msg")
 
-					if msg:IsA("TextLabel") and (msg.Text:sub(13) == data.uid or msg:GetAttribute(data.uid)) then
-						if not msg:GetAttribute(data.uid) then
-							msg:SetAttribute(data.uid, true)
-						end
-						return msg
-					end
+				if msg and msg.Text and msg.Text:sub(13) == tostring(uid) then
+					local dataTime = data.time
+					local timeString = string.format("%02d:%02d:%02d -- ", dataTime.hour, dataTime.min, dataTime.sec)
+					
+					
+					msg.RichText = true
+					msg.Text = `<font color="#{data.color:ToHex()}">{timeString}{data.text}</font>`
 				end
 			end
-
-			return nil
-		end
-
-		if ClientLog then
-			local printed = getPrintedMessage()
-
-			local printTime = data.time
-			local printContent = data.msg
-			local printColor = data.color
-
-			if printed then
-				printed.TextColor3 = printColor
-				printed.Text = string.format("%02d:%02d:%02d -- %s", printTime.hour, printTime.min, printTime.sec, printContent)
-			end
 		end
 	end
 end
 
-function customPrint.new(message: string, color: Color3 | BrickColor)
-	local data = {}
-
-	data.msg = message and tostring(message) or "Hello, World!"
-	data.time = os.date("*t")
-	data.uid = GenUID(6)
-	data.index = #printedData + 1
-	data.color = typeof(color) == "BrickColor" 
-		and color.Color
-		or (color ~= nil and color or Color3.new(1, 1, 1))
-
-	print(data.uid)
-
-	table.insert(printedData, data)
-
-	local DevConsoleMaster = CoreGui:FindFirstChild("DevConsoleMaster")
-	local DevConsoleWindow = DevConsoleMaster and DevConsoleMaster:FindFirstChild("DevConsoleWindow")
-	local DevConsoleUI = DevConsoleWindow and DevConsoleWindow:FindFirstChild("DevConsoleUI")
-
-	local MainView = DevConsoleUI and DevConsoleUI:FindFirstChild("MainView")
-
-	if MainView then
-		local ClientLog = MainView:WaitForChild("ClientLog", 0.5)
-		task.wait(0.05)
-		Update(ClientLog)
+local newUniqueId = function()
+	local uid = ""
+	for i = 1, 6 do
+		uid ..= math.random(0, 9)
 	end
-
-	return setmetatable(data, customPrint)
+	return uid
 end
 
-function customPrint:setColor3(color3: Color3)
-	assert(color3, "you forgot to put Color3, buddy.")
-	assert(typeof(color3) == "Color3", "wrong datatype, color3 should be Color3, buddy.")
-
-	local value = color3
-
-	printedData[self.index].color = value
-	self.color = value
-	customPrint:update()
+function Custom_Print.new(text: string, color: Color3 | BrickColor, image: string | number)
+	local Uid = newUniqueId()
+	local newMetatable = setmetatable({}, Custom_Print)
+	newMetatable.text = text
+	newMetatable.color = typeof(color) == "BrickColor" and color.Color or color
+	newMetatable.image = typeof(image) == "number" and "rbxassetid://" .. tostring(image) or image
+	newMetatable.uid = Uid
+	newMetatable.time = os.date("*t")
+	
+	print(Uid)
+	Custom_Print._instances[Uid] = newMetatable
+	
+	return newMetatable
 end
 
-function customPrint:setBrickColor(brickColor: BrickColor)
-	assert(brickColor, "you forgot to put BrickColor, buddy.")
-	assert(typeof(brickColor) == "BrickColor", "wrong datatype, brickColor should be BrickColor, buddy.")
-
-	local value = brickColor.Color
-
-	printedData[self.index].color = value
-	self.color = value
-	customPrint:update()
+function Custom_Print:setText(text: string)
+	local newText = text
+	
+	Custom_Print._instances[self.uid].text = newText
+	self.text = newText
+	self:update()
 end
 
-function customPrint:setText(text: string)
-	local value = text and tostring(text) or "Hello, World!"
+function Custom_Print:setColor3(color: Color3)
+	local newColor = color
 
-	printedData[self.index].msg = value
-	self.msg = value
-	customPrint:update()
+	Custom_Print._instances[self.uid].color = newColor
+	self.color = newColor
+	self:update()
 end
 
-function customPrint:update()
-	local DevConsoleMaster = CoreGui:FindFirstChild("DevConsoleMaster")
-	local DevConsoleWindow = DevConsoleMaster and DevConsoleMaster:FindFirstChild("DevConsoleWindow")
-	local DevConsoleUI = DevConsoleWindow and DevConsoleWindow:FindFirstChild("DevConsoleUI")
+function Custom_Print:setBrickColor(color: BrickColor)
+	local newColor = color.Color
 
-	local MainView = DevConsoleUI and DevConsoleUI:FindFirstChild("MainView")
-	local ClientLog = MainView and MainView:FindFirstChild("ClientLog")
-
-	task.spawn(function()
-		repeat
-			task.wait()
-			DevConsoleMaster = CoreGui:FindFirstChild("DevConsoleMaster")
-			DevConsoleWindow = DevConsoleMaster and DevConsoleMaster:FindFirstChild("DevConsoleWindow")
-			DevConsoleUI = DevConsoleWindow and DevConsoleWindow:FindFirstChild("DevConsoleUI")
-
-			MainView = DevConsoleUI and DevConsoleUI:FindFirstChild("MainView")
-			ClientLog = MainView and MainView:FindFirstChild("ClientLog")
-		until ClientLog
-	end)
-
-	Update(ClientLog)
+	Custom_Print._instances[self.uid].color = newColor
+	self.color = newColor
+	self:update()
 end
 
-function customPrint:getPrintInfo()
-	return self
+function Custom_Print:setImage(image: string | number)
+	local newImage = typeof(image) == "number" and "rbxassetid://" .. tostring(image) or image
+	
+
+	Custom_Print._instances[self.uid].image = newImage
+	self.image = newImage
+	self:update()
+end
+
+function Custom_Print:update()
+	updateAllData()
 end
 
 task.spawn(function()
-	local DevConsoleMaster = CoreGui:FindFirstChild("DevConsoleMaster")
-	local DevConsoleWindow = DevConsoleMaster and DevConsoleMaster:FindFirstChild("DevConsoleWindow")
-	local DevConsoleUI = DevConsoleWindow and DevConsoleWindow:FindFirstChild("DevConsoleUI")
-
-	local MainView = DevConsoleUI and DevConsoleUI:FindFirstChild("MainView")
-	local ClientLog = MainView and MainView:FindFirstChild("ClientLog")
-
-	if ClientLog then
-		repeat
-			Update(ClientLog)
-			task.wait()
-		until not MainView:FindFirstChild("ClientLog")
+	local DevConsoleMaster: ScreenGui = CoreGui:WaitForChild("DevConsoleMaster")
+	
+	local onPrintLogged
+	
+	local function printLoggerMain(clientLog)
+		updateAllData()
+		onPrintLogged = clientLog.ChildAdded:Connect(function()
+			updateAllData()
+		end)
 	end
-
-	repeat task.wait()
-		DevConsoleMaster = CoreGui:FindFirstChild("DevConsoleMaster")
-		DevConsoleWindow = DevConsoleMaster and DevConsoleMaster:FindFirstChild("DevConsoleWindow")
-		DevConsoleUI = DevConsoleWindow and DevConsoleWindow:FindFirstChild("DevConsoleUI")
-	until DevConsoleUI
-
-	local Checking
-	local ClientLogCheck
-	DevConsoleUI.ChildAdded:Connect(function(MainView)
-		if MainView.Name == "MainView" and MainView:IsA("Frame") then
-			local ClientLog = MainView:WaitForChild("ClientLog", 1)
-			
-			local function doChecking()
-				Update(ClientLog)
-				Checking = ClientLog.ChildAdded:Connect(function()
-					Update(ClientLog)
-				end)
-			end
-			
-			ClientLogCheck = MainView.ChildAdded:Connect(function(newClientLog)
-				if newClientLog.Name == "ClientLog" then
-					ClientLog = newClientLog
-					
-					doChecking()
-				end
-			end)
-
-			doChecking()
+	
+	local currentClientLog = getClientLog()
+	if currentClientLog then
+		printLoggerMain(currentClientLog)
+	end
+	
+	DevConsoleMaster.DescendantAdded:Connect(function(descendant)
+		if descendant.Name == "ClientLog" then
+			printLoggerMain(descendant)
 		end
 	end)
-
-	DevConsoleUI.ChildRemoved:Connect(function(MainView)
-		if MainView.Name == "MainView" and MainView:IsA("Frame") and Checking then
-			Checking:Disconnect()
-			Checking = nil
-
-			ClientLogCheck:Disconnect()
-			ClientLogCheck = nil
+	
+	DevConsoleMaster.DescendantRemoving:Connect(function(descendant)
+		if descendant.Name == "ClientLog" then
+			if onPrintLogged ~= nil then
+				onPrintLogged:Disconnect()
+				onPrintLogged = nil
+			end
 		end
 	end)
 end)
 
-return customPrint
-
---[[
-
-EXAMPLE:
-
-local customPrint = loadstring(game:HttpGet("https://raw.githubusercontent.com/uken2525v3/UniversalUken/refs/heads/main/custom_print.lua"))()
-
-local load = customPrint.new("-", Color3.new(0, 1, 0))
-task.wait()
-for i = 1, 100 do
-	local maxbar = 10
-	local bar = math.floor(i / 100) * maxbar
-	load:setText(`[Dick Hub]: Loading [{string.rep("#", bar)}|{string.rep(" ", maxbar - bar)}]...`)
-	task.wait(0.05)
-end
-load:setText("[Dick Hub]: Loading successfully")
-]]
+return Custom_Print
