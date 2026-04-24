@@ -18,12 +18,13 @@ function server.hop()
 	local serverList = game:HttpGet("https://games.roblox.com/v1/games/" .. game.PlaceId .. "/servers/Public?sortOrder=Desc&limit=100&excludeFullGames=true")
 	local serverListTable = HttpService:JSONDecode(serverList)
 
-	if serverListTable then
+	if serverListTable.data then
 		totalServer = {}
 		for _, serverData in pairs(serverListTable.data) do
-			print(serverData.id)
 			table.insert(totalServer, serverData.id)
 		end
+	else
+		warn("Hop Server: Too many request ( I think )")
 	end
 
 	local selectJobId = totalServer[math.random(1, #totalServer)]
