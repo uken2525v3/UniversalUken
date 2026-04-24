@@ -16,15 +16,16 @@ local LocalPlayer = Players.LocalPlayer
 
 function server.hop()
 	local serverList = game:HttpGet("https://games.roblox.com/v1/games/" .. game.PlaceId .. "/servers/Public?sortOrder=Desc&limit=100&excludeFullGames=true")
-	local serverListTable = serverList and HttpService:JSONDecode(serverList)
-	
+	local serverListTable = HttpService:JSONDecode(serverList)
+
 	if serverListTable then
 		totalServer = {}
-		for _, serverData in ipairs(serverListTable) do
+		for _, serverData in pairs(serverListTable.data) do
+			print(serverData.id)
 			table.insert(totalServer, serverData.id)
 		end
 	end
-	
+
 	local selectJobId = totalServer[math.random(1, #totalServer)]
 	TeleportService:TeleportToPlaceInstance(PlaceId, selectJobId, LocalPlayer)
 end
